@@ -29,6 +29,24 @@ export class Game extends Model<InferAttributes<Game>, InferCreationAttributes<G
 	declare updated_at: CreationOptional<Date>;
 }
 
+export class Song extends Model<InferAttributes<Song>, InferCreationAttributes<Song>> {
+	declare id: CreationOptional<number>;
+	declare name: string;
+	declare artist: string;
+
+	declare created_at: CreationOptional<Date>;
+	declare updated_at: CreationOptional<Date>;
+}
+
+export class Score extends Model<InferAttributes<Score>, InferCreationAttributes<Score>> {
+	declare id: CreationOptional<number>;
+	declare name: string;
+	declare score: number;
+
+	declare created_at: CreationOptional<Date>;
+	declare updated_at: CreationOptional<Date>;
+}
+
 Arcade.init(
 	{
 		id: {
