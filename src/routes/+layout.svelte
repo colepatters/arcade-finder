@@ -1,10 +1,24 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-	import type { LayoutData } from './$types';
-	import Navbar from '$lib/components/Navbar.svelte';
+  import { Joystick, ListOrdered, MapPin, User } from "lucide-svelte";
+  import "../app.css";
+  import { AppBar } from "@skeletonlabs/skeleton-svelte";
 
-	let { data, children }: { data: LayoutData; children: Snippet } = $props();
+  let { children } = $props();
 </script>
 
-<Navbar />
-{@render children()}
+<AppBar>
+  {#snippet lead()}
+    <a href="/">Arcade Finder</a>
+  {/snippet}
+
+  {#snippet trail()}
+    <a href="/games" title="Games"><Joystick /></a>
+    <a href="/scores" title="Scores"><ListOrdered /></a>
+    <a href="/arcades" title="Arcades"><MapPin /></a>
+    <User />
+  {/snippet}
+</AppBar>
+
+<div style="padding:15px">
+  {@render children()}
+</div>

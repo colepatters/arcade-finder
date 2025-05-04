@@ -1,36 +1,49 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+  import type { PageData } from "./$types";
 
-	let show_add_game = $state(false);
+  let { data }: { data: PageData } = $props();
 
-	let { data }: { data: PageData } = $props();
+  import { games, scores } from "$lib/mock-db";
 </script>
 
-<h1>Games</h1>
-<button onclick={() => (show_add_game = true)}>+ Add New Game</button>
+<h2 class="h2">Games</h2>
 
-{#if show_add_game}
-	<form method="post">
-		<label for="game-name-input">Name</label>
-		<input type="text" id="game-name-input" name="name" required />
-
-		<button type="submit">Submit</button>
-		<button type="button" onclick={() => (show_add_game = false)}>Cancel</button>
-	</form>
-{/if}
-
-{#if data.games.length === 0}
-	<p>-- no games (yet :D) --</p>
-{/if}
-
-<ul>
-	{#each data.games as game}
-		<li>
-			<div>
-				<a href={`/games/${game.id}`}>
-					<h3>{game.name}</h3>
-				</a>
-			</div>
-		</li>
-	{/each}
-</ul>
+<div class="table-wrap">
+  <table class="table caption-bottom">
+    <caption class="pt-4">All games in the database</caption>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Publisher(s)</th>
+        <th>Recorded Scores</th>
+        <th>Cabinets</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody class="[&>tr]:hover:preset-tonal-primary">
+      {#each Object.values(games) as entry}
+        <tr>
+          <td>{entry.name}</td>
+          <td>{entry.publishers.join(", ")}</td>
+          <td
+            >{Object.values(scores).filter(
+              (score) => score.game_id === entry.id
+            ).length}</td
+          >
+          <td>{entry.cabinetCount}</td>
+          <td class="text-right">
+            <a class="btn btn-sm preset-filled" href="/games/{entry.id}">
+              View &rarr;
+            </a>
+          </td>
+        </tr>
+      {/each}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="4">Total</td>
+        <td class="text-right">{Object.entries(games).length} Games</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
