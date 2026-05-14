@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { scores } from "$lib/mock-db";
+  import { arcades, games_at_arcades, scores } from "$lib/mock-db";
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
@@ -9,6 +9,35 @@
 <div style="margin-bottom: 10px">
   <strong>{data.game.genre}</strong>
   <p>Published by {data.game.publishers.join(", ")}</p>
+</div>
+
+<div>
+  <h4 class="h4">Locations</h4>
+  <div class="table-wrap" style="margin-bottom: 10px;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Arcade</th>
+        </tr>
+      </thead>
+      <tbody class="[&>tr]:hover:preset-tonal-primary">
+        {#each games_at_arcades.filter((entry) => entry.game_id === data.game.id) as entry}
+          <tr>
+            <td
+              style="display: flex; justify-content: space-between; align-items: center;"
+            >
+              <span>{arcades[entry.arcade_id].name}</span>
+              <div>
+                <button class="btn btn-sm preset-filled">View on Map</button>
+                <button class="btn btn-sm preset-filled">View Arcade</button>
+              </div>
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
+  <div></div>
 </div>
 
 <div style="display: flex; justify-content: space-between;">
@@ -67,7 +96,7 @@
         </tr>
       </thead>
       <tbody class="[&>tr]:hover:preset-tonal-primary">
-        {#each data.game.songs as song}
+        {#each Object.values(data.game.songs) as song}
           <tr>
             <td>{song.name}</td>
             <td>{song.artist}</td>
@@ -77,7 +106,9 @@
       <tfoot>
         <tr>
           <td colspan="2">Total</td>
-          <td class="text-right">{data.game.songs.length} Songs</td>
+          <td class="text-right"
+            >{Object.values(data.game.songs).length} Songs</td
+          >
         </tr>
       </tfoot>
     </table>

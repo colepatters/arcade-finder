@@ -10,7 +10,7 @@
 >
   <h2 class="h2">Scores</h2>
   <a href="/scores/new">
-    <button class="btn preset-filled">+ New Score</button>
+    <button class="btn btn-sm preset-filled">+ New Score</button>
   </a>
 </div>
 

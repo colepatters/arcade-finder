@@ -192,4 +192,24 @@ export const arcades: Record<number, Arcade> = {
     lat: 33.641308227254015,
     lon: -112.22417144940518,
   },
+  2: {
+    id: 2,
+    name: "Cobra Arcade Bar",
+    street_address: "801 N 2nd St #100, Phoenix, AZ 85004",
+    lat: 33.456889815750586,
+    lon: -112.0710152485567,
+  },
 };
+
+export type GameAtArcade = {
+  id: number;
+  game_id: number;
+  arcade_id: number;
+};
+export const games_at_arcades: GameAtArcade[] = [
+  {
+    id: 0,
+    game_id: 0,
+    arcade_id: 0,
+  },
+];

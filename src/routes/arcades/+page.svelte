@@ -3,11 +3,12 @@
   import type { PageData } from "./$types";
   import * as mapboxgl from "mapbox-gl";
   import { PUBLIC_MAPBOX_TOKEN } from "$env/static/public";
-  import { Locate, MapPinHouse } from "lucide-svelte";
+  import { Locate, MapPinHouse, MapPinPlus } from "lucide-svelte";
   import YourLocationMarker from "../../components/YourLocationMarker.svelte";
 
   // TODO fix this vvv
   import "/Users/cjpat/source/arcade-finder/node_modules/mapbox-gl/dist/mapbox-gl.css";
+
   import { arcades, type Arcade } from "$lib/mock-db";
   import ArcadeMarker from "../../components/ArcadeMarker.svelte";
   import * as mapboxgeo from "@mapbox/search-js-core";
@@ -31,11 +32,26 @@
       accessToken: PUBLIC_MAPBOX_TOKEN,
       zoom: 3.5,
       center: { lat: 39.1136101, lon: -98.7380103 },
+      style: "mapbox://styles/mapbox/light-v11",
     });
+
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      map.setStyle("mapbox://styles/mapbox/dark-v11");
+    }
+
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (event) => {
+        console.log("event listener triggered");
+        if (event.matches) map?.setStyle("mapbox://styles/mapbox/dark-v11");
+        else map?.setStyle("mapbox://styles/mapbox/light-v11");
+      });
+
+    map.addControl(new mapboxgl.GeolocateControl());
+    map.addControl(new mapboxgl.NavigationControl());
 
     updateVisibleEntries();
 
-    map.on("dragend", updateVisibleEntries);
     map.on("zoomend", updateVisibleEntries);
     map.on("moveend", updateVisibleEntries);
 
@@ -43,16 +59,20 @@
       console.log(`mouse clicked at ${event.lngLat}`);
     });
 
-    for (const arcade of Object.values(arcades)) {
+    for (let i = 0; i < Object.values(arcades).length; i++) {
+      const arcade = arcades[i];
       const markerTarget = document.createElement("div");
+
       mount(ArcadeMarker, {
         target: markerTarget,
         props: {
+          number: i + 1,
           onclick: () => console.log(`clicked on ${arcade.name}`),
         },
       });
       const marker = new mapboxgl.Marker({
         element: markerTarget,
+        anchor: "bottom",
       });
       marker.setLngLat(arcade);
       marker.addTo(map);
@@ -64,35 +84,8 @@
     map?.setZoom(3.5);
   }
 
-  function getDeviceLocation() {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        map?.setCenter({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
-        });
-        map?.setZoom(10);
-
-        if (!deviceLocationMarkerPlaced) {
-          const div = document.createElement("div");
-          mount(YourLocationMarker, { target: div });
-          const marker = new mapboxgl.Marker({
-            element: div,
-          });
-          marker.setLngLat({
-            lng: position.coords.longitude,
-            lat: position.coords.latitude,
-          });
-          marker.addTo(map);
-          deviceLocationMarkerPlaced = true;
-        }
-
-        return position;
-      },
-      () => {
-        alert("Geolocation permission denied. Refresh the page to try again!");
-      }
-    );
+  function debug_setStreetsStyle() {
+    map?.setStyle("mapbox://styles/mapbox/streets-v12");
   }
 
   let goToAddressInputValue = $state("");
@@ -136,20 +129,23 @@
 ></div>
 
 <div style="margin-top: 10px; display: flex; align-items: center; gap: 5px;">
-  <button class="btn preset-filled" onclick={getDeviceLocation}
-    ><Locate /></button
-  >
   <button class="btn preset-filled" onclick={setUSView}>US View</button>
+  <a href="/arcades/new">
+    <button class="btn preset-filled"><MapPinPlus /> New Arcade</button>
+  </a>
 </div>
 
 <h3 class="h3">Visible Entries</h3>
 <div style="display: flex; flex-direction: column; gap: 5px;">
   {#each visibleEntries as entry}
-    <button class="btn preset-filled">{entry.name}</button>
+    <button class="btn preset-filled">[{entry.id + 1}] {entry.name}</button>
   {/each}
 </div>
 
 <h4 class="h4" style="margin-top: 10px;">Map Debugging Tools</h4>
+<button class="btn preset-filled" onclick={debug_setStreetsStyle}
+  >Set Streets Style</button
+>
 <form
   style="display: flex; flex-direction: column; gap: 5px;"
   onsubmit={(e) => {
